@@ -1,26 +1,47 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
 import './App.css';
+import CurrencyRow from './CurrencyRow';
+
+const BASE_URL = 'https://api.exchangeratesapi.io/latest'
 
 function App() {
+
+  const [currencyOptions, setCurrencyOptions] =  useState([]);  
+  const [fromCurrency,setFromCurrency] = useState();
+  const [toCurrency,setToCurrency] = useState();
+  const [amount,setAmount] = useState(1);
+  const [exchangeRate,setExchangeRate] = useState();
+  const [amountInFromCurrency,setAmountInFromCurrency] = useState(true);
+  console.log(exchangeRate);
+  
+  useEffect(() =>{
+    fetch(BASE_URL)
+        .then(res =>res.json())
+        .then(data => {
+          const firstCurrency = Object.keys(data.rates)[0];
+        setCurrencyOptions([data.base,...Object.keys(data.rates)])
+        setFromCurrency(data.base);
+        setToCurrency(firstCurrency);
+        setExchangeRate(data.rates[firstCurrency])
+        })
+  },[])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <>
+    <h1>Convert!!!</h1>
+    <CurrencyRow
+    currencyOptions = {currencyOptions}
+    selectCurrency = {fromCurrency}
+    onChangeCurrency={e=>setFromCurrency(e.target.value)}
+    />
+    <div className="equals">=</div>
+    <CurrencyRow
+    currencyOptions = {currencyOptions}
+    selectCurrency = {toCurrency}
+    onChangeCurrency={e=>setToCurrency(e.target.value)}
+    />
+    </>
+ );
 }
 
 export default App;
